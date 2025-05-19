@@ -13,21 +13,35 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
 
-app.get("/api/:date", (req, res, next) => {
-  const { date } = req.params;
+app.get("/api/hello", function (req, res) {
+  res.json({ greeting: "hello API" });
+});
 
-  res.json({
-    unix: !date.includes("-") ? parseInt(date) : (new Date(date) / 1000) * 1000,
-    utc: `${
-      !date.includes("-")
-        ? new Date((date / 1000) * 1000).toGMTString()
-        : new Date(date).toGMTString()
-    }`,
-  });
-  console.log(new Date(date) / 1000);
-  console.log(new Date((new Date(date) / 1000) * 1000).toGMTString());
+app.get("/api/:date?", (req, res) => {
+  var { date } = req.params;
+  var ddate = {};
+  console.log(new Date("December 25, 2023"));
   console.log(date);
-  next();
+
+  if (!date) {
+    ddate = {
+      unix: (new Date() / 1000) * 1000,
+      utc: `${new Date().toGMTString()}`,
+    };
+  } else {
+    ddate = {
+      unix:
+        !date.includes("-") && !date.includes(" ")
+          ? parseInt(date)
+          : (new Date(date) / 1000) * 1000,
+      utc: `${
+        !date.includes("-") && !date.includes(" ")
+          ? new Date((date / 1000) * 1000).toGMTString()
+          : new Date(date).toGMTString()
+      }`,
+    };
+  }
+  res.json(ddate.utc != "Invalid Date" ? ddate : { error: "Invalid Date" });
 });
 
 app.listen(PORT, () => {
